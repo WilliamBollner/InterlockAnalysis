@@ -1,16 +1,16 @@
 package model;
 
 public class NominatingBody {
-    private String body;
+    private String name;
     private Company company;
 
-    public NominatingBody(String body, Company company) {
-        this.body = body;
+    public NominatingBody(String name, Company company) {
+        this.name = name;
         this.company = company;
     }
 
-    public String getBody() {
-        return body;
+    public String getName() {
+        return name;
     }
 
     public Company getCompany() {
@@ -20,7 +20,7 @@ public class NominatingBody {
     @Override
     public String toString() {
         return "NominatingBody{" +
-                "body='" + body + '\'' +
+                "body='" + name + '\'' +
                 ", company=" + company +
                 '}';
     }

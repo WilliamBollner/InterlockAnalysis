@@ -18,20 +18,27 @@ public class ExcelReader {
              Workbook workbook = new XSSFWorkbook(fis)) {
             Sheet sheet = workbook.getSheetAt(0);
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) {
-                    continue; // Ignore header
+                if (row.getRowNum() < 2) {
+                    continue; // Ignore header rows
                 }
+
+                // Skip the row if the company name or company acronym is missing or if the row is the last metadata row
                 String companyName = getCellValue(row.getCell(0));
                 String companyAcronym = getCellValue(row.getCell(1));
+                if (companyName.isEmpty() || companyAcronym.isEmpty() || companyName.startsWith("Dados informados")) {
+                    continue;
+                }
+
                 Company company = new Company(companyName, companyAcronym);
 
                 String memberName = getCellValue(row.getCell(3));
-                String memberPosition = getCellValue(row.getCell(4));
+                String memberPosition = getCellValue(row.getCell(5));
                 BoardMember boardMember = new BoardMember(memberName, memberPosition, company);
 
-                String body = getCellValue(row.getCell(5));
-                NominatingBody nominatingBody = new NominatingBody(body, company);
+                String nbName = getCellValue(row.getCell(6));
+                NominatingBody nominatingBody = new NominatingBody(nbName, company);
 
+                data.add(company);
                 data.add(boardMember);
                 data.add(nominatingBody);
             }
