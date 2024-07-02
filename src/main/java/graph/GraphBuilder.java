@@ -3,16 +3,21 @@ package graph;
 import model.BoardMember;
 import model.Company;
 import model.NominatingBody;
+import org.graphstream.algorithm.Dijkstra;
+import org.graphstream.algorithm.measure.DegreeCentrality;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.Path;
+import org.graphstream.graph.implementations.MultiGraph;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GraphBuilder {
+
     public Graph buildGraph(List<Object> data) {
-        Graph graph = new SingleGraph("Interlock Graph");
+        Graph graph = new MultiGraph("Interlock Graph");
         int edgeCounter = 0;
         Map<String, Integer> edgeCountMap = new HashMap<>();
 
@@ -23,6 +28,7 @@ public class GraphBuilder {
                     graph.addNode(company.getName());
                     graph.getNode(company.getName()).setAttribute("ui.label", company.getAcronym());
                     graph.getNode(company.getName()).setAttribute("ui.style", "fill-color: lightgray;");
+                    graph.getNode(company.getName()).setAttribute("length", 1);
                 }
             } else if (obj instanceof BoardMember) {
                 BoardMember bm = (BoardMember) obj;
@@ -30,31 +36,98 @@ public class GraphBuilder {
                     graph.addNode(bm.getName());
                     graph.getNode(bm.getName()).setAttribute("ui.label", bm.getName());
                     graph.getNode(bm.getName()).setAttribute("ui.style", "fill-color: blue;");
-                    // Create a unique edge ID
-                    String edgeId = bm.getName() + "-" + bm.getCompany().getName() + "-" + edgeCounter++;
+                    graph.getNode(bm.getName()).setAttribute("length", 1);
+                }
+                String edgeId = bm.getName() + "-" + bm.getCompany().getName() + "-" + edgeCounter++;
+                if (graph.getEdge(edgeId) == null) {
                     graph.addEdge(edgeId, bm.getName(), bm.getCompany().getName(), false);
                 }
             } else if (obj instanceof NominatingBody) {
                 NominatingBody nb = (NominatingBody) obj;
-                System.out.println(nb.getName() + " -- " + nb.getCompany().getName());
                 if (graph.getNode(nb.getName()) == null) {
                     graph.addNode(nb.getName());
                     graph.getNode(nb.getName()).setAttribute("ui.label", nb.getName());
                     graph.getNode(nb.getName()).setAttribute("ui.style", "fill-color: green;");
+                    graph.getNode(nb.getName()).setAttribute("length", 1);
                 }
-
-                // Increment the edge counter between this NominatingBody and Company
-                String edgeKey = nb.getName() + "-" + nb.getCompany().getName();
-                int edgeCount = edgeCountMap.getOrDefault(edgeKey, 0) + 1;
-                edgeCountMap.put(edgeKey, edgeCount);
-
-                // Create a unique edge ID
-                String edgeId = edgeKey;
+                String edgeId = nb.getName() + "-" + nb.getCompany().getName() + "-" + edgeCounter++;
                 if (graph.getEdge(edgeId) == null) {
                     graph.addEdge(edgeId, nb.getName(), nb.getCompany().getName(), false);
                 }
             }
         }
+        //calculateCentralities(graph);
+        calculateShortestPaths(graph);
+
         return graph;
+    }
+
+    private void calculateShortestPaths(Graph graph) {
+        Dijkstra dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, null);
+
+        for (Node sourceNode : graph) {
+            if (sourceNode.hasAttribute("ui.style") && sourceNode.getAttribute("ui.style").equals("fill-color: blue;")) {
+                System.out.println("Caminhos mais curtos a partir do " + sourceNode.getId() + ":");
+
+                dijkstra.init(graph);
+                dijkstra.setSource(sourceNode);
+                dijkstra.compute();
+
+                for (Node targetNode : graph) {
+                    if (!sourceNode.equals(targetNode)) {
+                        Path path = dijkstra.getPath(targetNode);
+                        if (path != null) {
+                            System.out.println("Para " + targetNode.getId() + ": " + path);
+                        }
+                    }
+                }
+                dijkstra.clear();
+            }
+        }
+    }
+    private void calculateCentralities(Graph graph) {
+        // Centralidade de Grau
+        DegreeCentrality degreeCentrality = new DegreeCentrality();
+        degreeCentrality.init(graph);
+        degreeCentrality.compute();
+        System.out.println("Centralidade de Grau:");
+//        for (Node node : graph) {
+//            if(node.getAttribute("ui.style").equals("fill-color: blue;")) { // means boardMembers
+//                System.out.println(node.getId() + ": " + node.getAttribute("degree"));
+//            }
+//        }
+
+//        // Centralidade de Intermediação
+//        BetweennessCentrality betweennessCentrality = new BetweennessCentrality();
+//        betweennessCentrality.init(graph);
+//        betweennessCentrality.compute();
+//        System.out.println("Centralidade de Intermediação:");
+//        for (Node node : graph) {
+//            if(node.getAttribute("ui.style").equals("fill-color: blue;")) { // means boardMembers
+//                  System.out.println(node.getId() + ": " + node.getAttribute("Cb"));
+//           }
+//        }
+//
+//        // Centralidade de Proximidade
+//        ClosenessCentrality closenessCentrality = new ClosenessCentrality();
+//        closenessCentrality.init(graph);
+//        closenessCentrality.compute();
+//        System.out.println("Centralidade de Proximidade:");
+//        for (Node node : graph) {
+//            if(node.getAttribute("ui.style").equals("fill-color: blue;")) { // means boardMembers
+//                System.out.println(node.getId() + ": " + node.getAttribute("closeness"));
+//            }
+//        }
+//
+//        // PageRank
+//        PageRank pageRank = new PageRank();
+//        pageRank.init(graph);
+//        pageRank.compute();
+//        System.out.println("PageRank:");
+//        for (Node node : graph) {
+//            if(node.getAttribute("ui.style").equals("fill-color: blue;")) { // means boardMembers
+//                System.out.println(node.getId() + ": " + node.getAttribute("PageRank"));
+//            }
+//        }
     }
 }
