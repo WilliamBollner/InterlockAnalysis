@@ -6,10 +6,15 @@ import org.graphstream.graph.Graph;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        String excelFilePath = "C:/workspace/InterlockAnalysis/src/main/resources/coadm-05-2024.xlsx";
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Por favor, insira o caminho do arquivo Excel:");
+        String excelFilePath = scanner.nextLine();
+
         try {
             // Read data from Excel
             ExcelReader reader = new ExcelReader();
@@ -29,4 +34,3 @@ public class Main {
         }
     }
 }
-
