@@ -3,11 +3,9 @@ package graph;
 import model.BoardMember;
 import model.Company;
 import model.NominatingBody;
-import org.graphstream.algorithm.Dijkstra;
-import org.graphstream.algorithm.measure.DegreeCentrality;
+import org.graphstream.algorithm.BetweennessCentrality;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.Path;
 import org.graphstream.graph.implementations.MultiGraph;
 
 import java.util.HashMap;
@@ -27,7 +25,7 @@ public class GraphBuilder {
                 if (graph.getNode(company.getName()) == null) {
                     graph.addNode(company.getName());
                     graph.getNode(company.getName()).setAttribute("ui.label", company.getAcronym());
-                    graph.getNode(company.getName()).setAttribute("ui.style", "fill-color: lightgray;");
+                    graph.getNode(company.getName()).setAttribute("ui.style", "fill-color: pink;");
                     graph.getNode(company.getName()).setAttribute("length", 1);
                 }
             } else if (obj instanceof BoardMember) {
@@ -41,6 +39,7 @@ public class GraphBuilder {
                 String edgeId = bm.getName() + "-" + bm.getCompany().getName() + "-" + edgeCounter++;
                 if (graph.getEdge(edgeId) == null) {
                     graph.addEdge(edgeId, bm.getName(), bm.getCompany().getName(), false);
+                    graph.getEdge(edgeId).setAttribute("ui.style", "fill-color: gray;");
                 }
             } else if (obj instanceof NominatingBody) {
                 NominatingBody nb = (NominatingBody) obj;
@@ -53,81 +52,14 @@ public class GraphBuilder {
                 String edgeId = nb.getName() + "-" + nb.getCompany().getName() + "-" + edgeCounter++;
                 if (graph.getEdge(edgeId) == null) {
                     graph.addEdge(edgeId, nb.getName(), nb.getCompany().getName(), false);
+                    graph.getEdge(edgeId).setAttribute("ui.style", "fill-color: darkgray;");
                 }
             }
         }
-        //calculateCentralities(graph);
-        calculateShortestPaths(graph);
+
+        GraphHelper.calculateNBInfluenceByDegrees(graph);
+        GraphHelper.calculateCompanyInfluence(graph);
 
         return graph;
-    }
-
-    private void calculateShortestPaths(Graph graph) {
-        Dijkstra dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, null);
-
-        for (Node sourceNode : graph) {
-            if (sourceNode.hasAttribute("ui.style") && sourceNode.getAttribute("ui.style").equals("fill-color: blue;")) {
-                System.out.println("Caminhos mais curtos a partir do " + sourceNode.getId() + ":");
-
-                dijkstra.init(graph);
-                dijkstra.setSource(sourceNode);
-                dijkstra.compute();
-
-                for (Node targetNode : graph) {
-                    if (!sourceNode.equals(targetNode)) {
-                        Path path = dijkstra.getPath(targetNode);
-                        if (path != null) {
-                            System.out.println("Para " + targetNode.getId() + ": " + path);
-                        }
-                    }
-                }
-                dijkstra.clear();
-            }
-        }
-    }
-    private void calculateCentralities(Graph graph) {
-        // Centralidade de Grau
-        DegreeCentrality degreeCentrality = new DegreeCentrality();
-        degreeCentrality.init(graph);
-        degreeCentrality.compute();
-        System.out.println("Centralidade de Grau:");
-//        for (Node node : graph) {
-//            if(node.getAttribute("ui.style").equals("fill-color: blue;")) { // means boardMembers
-//                System.out.println(node.getId() + ": " + node.getAttribute("degree"));
-//            }
-//        }
-
-//        // Centralidade de Intermediação
-//        BetweennessCentrality betweennessCentrality = new BetweennessCentrality();
-//        betweennessCentrality.init(graph);
-//        betweennessCentrality.compute();
-//        System.out.println("Centralidade de Intermediação:");
-//        for (Node node : graph) {
-//            if(node.getAttribute("ui.style").equals("fill-color: blue;")) { // means boardMembers
-//                  System.out.println(node.getId() + ": " + node.getAttribute("Cb"));
-//           }
-//        }
-//
-//        // Centralidade de Proximidade
-//        ClosenessCentrality closenessCentrality = new ClosenessCentrality();
-//        closenessCentrality.init(graph);
-//        closenessCentrality.compute();
-//        System.out.println("Centralidade de Proximidade:");
-//        for (Node node : graph) {
-//            if(node.getAttribute("ui.style").equals("fill-color: blue;")) { // means boardMembers
-//                System.out.println(node.getId() + ": " + node.getAttribute("closeness"));
-//            }
-//        }
-//
-//        // PageRank
-//        PageRank pageRank = new PageRank();
-//        pageRank.init(graph);
-//        pageRank.compute();
-//        System.out.println("PageRank:");
-//        for (Node node : graph) {
-//            if(node.getAttribute("ui.style").equals("fill-color: blue;")) { // means boardMembers
-//                System.out.println(node.getId() + ": " + node.getAttribute("PageRank"));
-//            }
-//        }
     }
 }

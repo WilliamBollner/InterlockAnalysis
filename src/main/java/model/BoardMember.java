@@ -2,12 +2,22 @@ package model;
 
 public class BoardMember {
     private String name;
-    private String position;
     private Company company;
+    private double pageRank;
 
-    public BoardMember(String name, String position, Company company) {
+    public BoardMember() {}
+
+    public BoardMember(String name) {
         this.name = name;
-        this.position = position;
+    }
+
+    public BoardMember(String name, double pageRank) {
+        this.name = name;
+        this.pageRank = pageRank;
+    }
+
+    public BoardMember(String name, Company company) {
+        this.name = name;
         this.company = company;
     }
 
@@ -15,20 +25,11 @@ public class BoardMember {
         return name;
     }
 
-    public String getPosition() {
-        return position;
-    }
-
     public Company getCompany() {
         return company;
     }
 
-    @Override
-    public String toString() {
-        return "BoardMember{" +
-                "name='" + name + '\'' +
-                ", position='" + position + '\'' +
-                ", company=" + company +
-                '}';
+    public double getPageRank() {
+        return pageRank;
     }
 }
