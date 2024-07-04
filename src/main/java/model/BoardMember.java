@@ -1,9 +1,12 @@
 package model;
 
+import java.util.List;
+
 public class BoardMember {
     private String name;
-    private Company company;
-    private double pageRank;
+    private List<Company> companies;
+    private String position;
+    private double influenceScore;
 
     public BoardMember() {}
 
@@ -11,25 +14,34 @@ public class BoardMember {
         this.name = name;
     }
 
-    public BoardMember(String name, double pageRank) {
+    public BoardMember(String name, List<Company> companies) {
         this.name = name;
-        this.pageRank = pageRank;
+        this.companies = companies;
+    }
+    public BoardMember(String name, List<Company> companies, String position) {
+        this.name = name;
+        this.companies = companies;
+        this.position = position;
     }
 
-    public BoardMember(String name, Company company) {
-        this.name = name;
-        this.company = company;
-    }
 
     public String getName() {
         return name;
     }
 
-    public Company getCompany() {
-        return company;
+    public List<Company> getCompanies() {
+        return companies;
     }
 
-    public double getPageRank() {
-        return pageRank;
+    public String getPosition() {
+        return position;
+    }
+
+    public double getInfluenceScore() {
+        return influenceScore;
+    }
+
+    public void setInfluenceScore(double influenceScore) {
+        this.influenceScore = influenceScore;
     }
 }

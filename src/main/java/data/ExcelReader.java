@@ -30,9 +30,12 @@ public class ExcelReader {
                 }
 
                 Company company = new Company(companyName, companyAcronym);
-
+                List<Company> companies = new ArrayList<>();
+                companies.add(company);
                 String memberName = getCellValue(row.getCell(3));
-                BoardMember boardMember = new BoardMember(memberName, company);
+                String positionName = getCellValue(row.getCell(5));
+
+                BoardMember boardMember = new BoardMember(memberName, companies, positionName);
 
                 String nbName = getCellValue(row.getCell(6));
                 NominatingBody nominatingBody = new NominatingBody(nbName, company);

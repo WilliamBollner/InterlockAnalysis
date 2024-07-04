@@ -3,11 +3,11 @@ package graph;
 import model.BoardMember;
 import model.Company;
 import model.NominatingBody;
-import org.graphstream.algorithm.BetweennessCentrality;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +35,14 @@ public class GraphBuilder {
                     graph.getNode(bm.getName()).setAttribute("ui.label", bm.getName());
                     graph.getNode(bm.getName()).setAttribute("ui.style", "fill-color: blue;");
                     graph.getNode(bm.getName()).setAttribute("length", 1);
+                    graph.getNode(bm.getName()).setAttribute("companyName", bm.getCompanies().get(0));
+                    graph.getNode(bm.getName()).setAttribute("positionName", bm.getPosition());
+                } else {
+                graph.getNode(bm.getName()).setAttribute("companyName2", bm.getCompanies().get(0));
                 }
-                String edgeId = bm.getName() + "-" + bm.getCompany().getName() + "-" + edgeCounter++;
+                String edgeId = bm.getName() + "-" + bm.getCompanies().get(0).getName() + "-" + edgeCounter++;
                 if (graph.getEdge(edgeId) == null) {
-                    graph.addEdge(edgeId, bm.getName(), bm.getCompany().getName(), false);
+                    graph.addEdge(edgeId, bm.getName(), bm.getCompanies().get(0).getName(), false);
                     graph.getEdge(edgeId).setAttribute("ui.style", "fill-color: gray;");
                 }
             } else if (obj instanceof NominatingBody) {
@@ -58,7 +62,9 @@ public class GraphBuilder {
         }
 
         GraphHelper.calculateNBInfluenceByDegrees(graph);
-        GraphHelper.calculateCompanyInfluence(graph);
+        List<Company> companies = GraphHelper.calculateCompanyInfluence(graph);
+        List<BoardMember> boardMemberList = GraphHelper.calculateBMInfluence(graph, companies);
+        GraphHelper.displayShortestPath(graph, boardMemberList);
 
         return graph;
     }
